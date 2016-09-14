@@ -1,0 +1,41 @@
+{
+	"manifest-version": 1,
+
+	"name": "databox-app-light-graph",
+	"version": "0.1.0",
+
+	"description": "A simple Databox app that plots mobile phone light sensor data",
+	"author": "Yousef Amar <yousef@amar.io> (http://yousefamar.com/)",
+	"license": "MIT",
+
+	"tags": [
+		"databox",
+		"app",
+		"mobile",
+		"phone",
+		"smartphone",
+		"light",
+		"sensor",
+		"sensingkit"
+	],
+
+	"homepage": "https://github.com/yousefamar/databox-app-light-graph",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yousefamar/databox-app-light-graph.git"
+	},
+
+	"driver-permissions": [
+		{
+			"name": "databox-driver-mobile",
+			"required": true,
+			"benefits": "[markdown-formatted description]",
+			"risks": "[markdown-formatted description]"
+		}
+	],
+
+	"optional-requirements": [
+	],
+	"resource-requirements": {
+	}
+}
