@@ -1,0 +1,138 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1')
+		title Databox Mobile Light Graph
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js')
+		script(src='https://d3js.org/d3.v3.min.js')
+		style.
+			h1 {
+				color: darkblue;
+			}
+
+			svg {
+				font: 10px sans-serif;
+			}
+
+			.axis path,
+			.axis line {
+				fill: none;
+				stroke: #000;
+				shape-rendering: crispEdges;
+			}
+
+			.line {
+				fill: none;
+				stroke: steelblue;
+				stroke-width: 1.5px;
+			}
+
+			.slider {
+				display: block;
+				width: 100%;
+			}
+		script
+			:livescript
+				<-! document.add-event-listener \DOMContentLoaded
+
+				margin =
+					top:    20
+					right:  20
+					bottom: 30
+					left:   30
+				width  = 0.97 * window.inner-width    - margin.left - margin.right
+				height = 0.5 * window.inner-height - margin.top - margin.bottom
+
+				x = d3.time.scale!.range   [0 width]
+				y = d3.scale.linear!.range [height, 0]
+
+				x-axis = d3.svg.axis!
+					.scale x
+					.orient \bottom
+
+				y-axis = d3.svg.axis!
+					.scale y
+					.orient \left
+
+				svg = d3.select \#graph
+					.append \svg
+						.attr \width  width  + margin.left + margin.right
+						.attr \height height + margin.top  + margin.bottom
+					.append \g
+						.attr \transform "translate(#{margin.left}, #{margin.top})"
+
+				line = d3.svg.line!
+					.x -> x new Date it.timestamp
+					.y -> y +it.value
+
+				svg.append \g
+					.attr \class 'x axis'
+					.attr \transform "translate(0, #height)"
+					.call x-axis
+
+				svg.append \g
+					.attr \class 'y axis'
+					.call y-axis
+					.append \text
+						.attr \transform 'rotate(-90)'
+						.attr \y 6
+						.attr \dy \.71em
+						.style \text-anchor \end
+						.text \Value
+
+				svg.append \path
+					.attr \class \line
+
+				var entries
+
+				max-count = 100entries
+				max-time  = 4000ms
+
+				update-graph = !->
+					filtered = entries.slice -max-count .filter ->
+						max-time < 1 or new Date! - (new Date it.timestamp) <= max-time
+
+					x.domain d3.extent filtered, -> new Date it.timestamp
+					y.domain d3.extent filtered, -> +it.value
+
+					svg.select \.x.axis .call x-axis
+					svg.select \.y.axis .call y-axis
+					svg.select \.line .attr \d line filtered
+
+				$ \#time-slider  .on \input !->
+					max-time  := $ @ .val!
+					$ \#time-val  .text max-time
+					update-graph!
+				$ \#count-slider .on \input !->
+					max-count := $ @ .val!
+					$ \#count-val .text max-count
+					update-graph!
+
+				xhr = new XML-http-request!
+					..open \GET \light true
+					..onprogress = !->
+						entries := xhr.response-text.split \\n
+						entries.pop!
+						entries .= map ->
+							data = it.split \,
+							do
+								timestamp: +data[0]
+								value: +data[1]
+						update-graph!
+						window.entries = entries
+					..send()
+
+	body
+		h1 Databox Mobile Light Graph
+		#graph
+		p
+			| Time Window: 
+			span#time-val 4000
+			| &nbsp;ms
+			input#time-slider.slider(type='range',  max='100000', value='4000')
+		p
+			| Entry Window: 
+			span#count-val 100
+			| &nbsp;entries
+			input#count-slider.slider(type='range', max='1000',  value='100')
