@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	svg.append('path')
 		.attr('class', 'line');
 
-	var entries;
+	var entries = [];
 
 	var maxCount = 100;
 	var maxTime = 4000;
@@ -76,20 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		updateGraph();
 	});
 
-	let xhr = new XMLHttpRequest();
-	xhr.open('GET', 'light', true);
-	xhr.onprogress = () => {
-		entries = xhr.responseText.split('\n');
-		entries.pop();
-		entries = entries.map((entry) => {
-			let data = it.split(',');
-			return {
-				timestamp: +data[0],
-				value: +data[1]
-			};
+	(function getDatum() {
+		$.get('ui/data', {}, (data) => {
+			entries.push({
+				timestamp: +data.data[0],
+				value: +data.data[1]
+			});
+			updateGraph();
+			setTimeout(getDatum, 0);
 		});
-		updateGraph();
-		window.entries = entries;
-	};
-	xhr.send();
+	})();
 });

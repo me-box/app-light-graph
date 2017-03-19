@@ -3,7 +3,7 @@ const url = require('url');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const WebSocket = require('ws');
+//const WebSocket = require('ws');
 const databox = require('node-databox');
 
 const PORT = process.env.PORT || 8080;
@@ -24,7 +24,8 @@ const credentials = {
 };
 
 const server = https.createServer(credentials, app);
-const wss = new WebSocket.Server({ server, path: '/ui/ws' });
+//const wss = new WebSocket.Server({ server, path: '/ui/ws' });
+var subscriptions;
 
 // TODO: Check
 app.enable('trust proxy');
@@ -45,17 +46,26 @@ app.get('/ui', function(req, res) {
 	res.render('graph');
 });
 
+app.get('/ui/data', function(req, res) {
+	subscriptions.once('data', (hostname, datasourceID, data) => {
+		res.json({ hostname, datasourceID, data });
+	});
+});
+
 server.listen(PORT);
 
 databox.waitForStoreStatus(mobileStore, 'active')
 	.then(() => databox.subscriptions.connect(mobileStore))
-	.then((subscriptions) => {
-		subscriptions.on('data', (hostname, datasourceID, data) => {
+	.then((subs) => {
+		subscriptions = subs;
+		/*
+		subs.on('data', (hostname, datasourceID, data) => {
 			wss.clients.forEach((client) => {
 				if (client.readyState === WebSocket.OPEN)
 					client.send(data);
 			});
 		});
+		*/
 	})
 	.then(() => databox.subscriptions.subscribe(mobileStore, lightID, 'ts'))
 	.catch((err) => console.error(err));
