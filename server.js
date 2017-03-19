@@ -1,51 +1,61 @@
-const express = require('express');
-const request = require('request');
+const https = require('https');
+const url = require('url');
 
-const ARBITER_TOKEN = process.env.ARBITER_TOKEN;
+const express = require('express');
+const bodyParser = require('body-parser');
+const WebSocket = require('ws');
+const databox = require('node-databox');
+
 const PORT = process.env.PORT || 8080;
 
-if (ARBITER_TOKEN == null)
-	throw new Error('Arbiter token undefined');
+const HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
+const HTTPS_SERVER_PRIVATE_KEY = process.env.HTTPS_SERVER_PRIVATE_KEY || '';
 
-(getMacaroon = function(callback) {
-	request.post({
-		url: "http://arbiter:8080/macaroon",
-		form: {
-			token: ARBITER_TOKEN,
-			target: 'databox-driver-mobile.store'
-		}
-	}, function(err, res, macaroon) {
-		if (err != null)
-			throw err;
-		callback(macaroon);
-	});
-})(function(macaroon) {
-	var app = express();
+const DATASOURCE_DS_light = JSON.parse(process.env.DATASOURCE_DS_light || '{}');
+// TODO: https://github.com/me-box/node-databox/issues/12
+const mobileStore = ((url) => url.protocol + '//' + url.host)(url.parse(DATASOURCE_DS_light.href));
+const lightID = DATASOURCE_DS_light['item-metadata'].filter((pair) => pair.rel === 'urn:X-databox:rels:hasDatasourceid')[0].val;
 
-	app.set('views', 'www');
-	app.set('view engine', 'pug');
+const app = express();
 
-	app.use(function(req, res, next) {
-		res.header('Access-Control-Allow-Origin', '*');
-		next();
-	});
+const credentials = {
+	key:  HTTPS_SERVER_PRIVATE_KEY,
+	cert: HTTPS_SERVER_CERT,
+};
 
-	app.get('/status', function(req, res) {
-		res.send('active');
-	});
+const server = https.createServer(credentials, app);
+const wss = new WebSocket.Server({ server, path: '/ui/ws' });
 
-	app.get('/', function(req, res) {
-		res.render('graph');
-	});
+// TODO: Check
+app.enable('trust proxy');
+app.disable('x-powered-by');
 
-	app.get('/light', function(req, res) {
-		request.post({
-			url: 'http://databox-driver-mobile.store:8080/api/light',
-			form: {
-				macaroon: macaroon
-			}
-		}).pipe(res);
-	});
+//app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-	app.listen(PORT);
+app.use('/ui', express.static('www'));
+app.set('views', './views');
+app.set('view engine', 'pug');
+
+app.get('/status', function(req, res){
+	res.send('active');
 });
+
+app.get('/ui', function(req, res) {
+	res.render('graph');
+});
+
+server.listen(PORT);
+
+databox.waitForStoreStatus(mobileStore, 'active')
+	.then(() => databox.subscriptions.connect(mobileStore))
+	.then((subscriptions) => {
+		subscriptions.on('data', (hostname, datasourceID, data) => {
+			wss.clients.forEach((client) => {
+				if (client.readyState === WebSocket.OPEN)
+					client.send(data);
+			});
+		});
+	})
+	.then(() => databox.subscriptions.subscribe(mobileStore, lightID, 'ts'))
+	.catch((err) => console.error(err));
