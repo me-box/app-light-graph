@@ -35,8 +35,6 @@
   "homepage": "https://github.com/me-box/databox-app-light-graph#readme",
   "dependencies": {
     "express": "^4.14.0",
-    "jstransformer-livescript": "^1.1.1",
-    "livescript": "^1.5.0",
     "pug": "^2.0.0-beta6",
     "request": "^2.74.0"
   }
