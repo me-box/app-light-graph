@@ -34,8 +34,9 @@
   },
   "homepage": "https://github.com/me-box/databox-app-light-graph#readme",
   "dependencies": {
-    "express": "^4.14.0",
-    "pug": "^2.0.0-beta6",
-    "request": "^2.74.0"
+    "express": "^4.15.2",
+    "node-databox": "^0.2.8",
+    "pug": "^2.0.0-beta11",
+    "ws": "^2.2.1"
   }
 }
