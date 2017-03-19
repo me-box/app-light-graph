@@ -1,12 +1,11 @@
-FROM node:argon
-#FROM iron/node
+FROM node:alpine
 
-ADD package.json package.json
+COPY . .
 RUN npm install
-ADD . .
 
 LABEL databox.type="app"
 
 EXPOSE 8080
 
 CMD ["npm","start"]
+#CMD ["sleep","2147483647"]

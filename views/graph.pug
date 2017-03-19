@@ -1,0 +1,49 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1')
+		title Databox Mobile Light Graph
+		script(src='ui/jquery-3.2.0.min.js')
+		script(src='ui/d3.v4.min.js')
+		script(src='ui/graph.js')
+		style.
+			h1 {
+				color: darkblue;
+			}
+
+			svg {
+				font: 10px sans-serif;
+			}
+
+			.axis path,
+			.axis line {
+				fill: none;
+				stroke: #000;
+				shape-rendering: crispEdges;
+			}
+
+			.line {
+				fill: none;
+				stroke: steelblue;
+				stroke-width: 1.5px;
+			}
+
+			.slider {
+				display: block;
+				width: 100%;
+			}
+
+	body
+		h1 Databox Mobile Light Graph
+		#graph
+		p
+			| Time Window: 
+			span#time-val 4000
+			| &nbsp;ms
+			input#time-slider.slider(type='range',  max='100000', value='4000')
+		p
+			| Entry Window: 
+			span#count-val 100
+			| &nbsp;entries
+			input#count-slider.slider(type='range', max='1000',  value='100')

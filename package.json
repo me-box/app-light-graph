@@ -2,14 +2,17 @@
   "name": "databox-app-light-graph",
   "version": "0.1.0",
   "description": "A simple Databox app that plots mobile phone light sensor data",
+  "config": {
+    "databox-registry": "localhost:5000"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "lsc server.ls",
-    "release": "docker build -t databox-app-light-graph . && docker tag databox-app-light-graph amar.io:5000/databox-app-light-graph && docker push amar.io:5000/databox-app-light-graph"
+    "build": "docker build -t $npm_package_name .",
+    "release": "docker tag $npm_package_name $npm_package_config_databox_registry/$npm_package_name && docker push $npm_package_config_databox_registry/$npm_package_name"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yousefamar/databox-app-light-graph.git"
+    "url": "git+https://github.com/me-box/databox-app-light-graph.git"
   },
   "keywords": [
     "docker",
@@ -27,14 +30,13 @@
   "author": "Yousef Amar <yousef@amar.io> (http://yousefamar.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yousefamar/databox-app-light-graph/issues"
+    "url": "https://github.com/me-box/databox-app-light-graph/issues"
   },
-  "homepage": "https://github.com/yousefamar/databox-app-light-graph#readme",
+  "homepage": "https://github.com/me-box/databox-app-light-graph#readme",
   "dependencies": {
-    "express": "^4.14.0",
-    "jstransformer-livescript": "^1.1.1",
-    "livescript": "^1.5.0",
-    "pug": "^2.0.0-beta6",
-    "request": "^2.74.0"
+    "express": "^4.15.2",
+    "node-databox": "^0.2.8",
+    "pug": "^2.0.0-beta11",
+    "ws": "^2.2.1"
   }
 }
