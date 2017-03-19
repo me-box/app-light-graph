@@ -19,23 +19,36 @@
 		"sensingkit"
 	],
 
-	"homepage": "https://github.com/yousefamar/databox-app-light-graph",
+	"homepage": "https://github.com/me-box/databox-app-light-graph",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/yousefamar/databox-app-light-graph.git"
+		"url": "git+https://github.com/me-box/databox-app-light-graph.git"
 	},
 
-	"driver-permissions": [
+	"packages": [
 		{
-			"name": "databox-driver-mobile",
-			"required": true,
-			"benefits": "[markdown-formatted description]",
-			"risks": "[markdown-formatted description]"
+			"name": "Light Level Plotter",
+			"purpose": "To visualise your smartphone's light level in real time",
+			"install": "required",
+			"risks": "Estimating time of day and perhaps even location based on light patterns over time.",
+			"benefits": "A cool demo of plotting phone light levels.",
+			"datastores": [ "DS_light" ]
 		}
 	],
 
-	"optional-requirements": [
+	"allowed-combinations": [],
+
+	"datasources": [
+		{
+			"type": "light",
+			"required": true,
+			"name": "light",
+			"clientid": "DS_light",
+			"granularities": []
+		}
 	],
+
 	"resource-requirements": {
+		"store":"databox-store-blob"
 	}
 }
