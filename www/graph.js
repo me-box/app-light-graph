@@ -9,15 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	let width  = 0.97 * window.innerWidth  - margin.left - margin.right;
 	let height = 0.5  * window.innerHeight - margin.top  - margin.bottom;
 
-	let x = d3.time.scale().range([0, width]);
-	let y = d3.scale.linear().range([height, 0]);
+	let x = d3.scaleTime().range([0, width]);
+	let y = d3.scaleLinear().range([height, 0]);
 
-	let xAxis = d3.svg.axis()
-		.scale(x)
-		.orient('bottom');
-	let yAxis = d3.svg.axis()
-		.scale(y)
-		.orient('left');
+	let xAxis = d3.axisBottom()
+		.scale(x);
+	let yAxis = d3.axisLeft()
+		.scale(y);
 
 	let svg = d3.select('#graph')
 		.append('svg')
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		.append('g')
 			.attr('transform', "translate(" + margin.left + ", " + margin.top + ")");
 
-	let line = d3.svg.line()
+	let line = d3.line()
 		.x((d) => x(new Date(d.timestamp)))
 		.y((d) => y(+d.value));
 
@@ -58,8 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			.slice(-maxCount)
 			.filter((entry) => maxTime < 1 || new Date() - new Date(entry.timestamp) <= maxTime);
 
-		x.domain(d3.extent(filtered, (entry) => new Date(it.timestamp)));
-		y.domain(d3.extent(filtered, (entry) => +it.value));
+		x.domain(d3.extent(filtered, (entry) => new Date(entry.timestamp)));
+		y.domain(d3.extent(filtered, (entry) => +entry.value));
 
 		svg.select('.x.axis').call(xAxis);
 		svg.select('.y.axis').call(yAxis);
