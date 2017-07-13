@@ -1,5 +1,5 @@
 {
-  "name": "databox-app-light-graph",
+  "name": "app-light-graph",
   "version": "0.1.0",
   "description": "A simple Databox app that plots mobile phone light sensor data",
   "config": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/me-box/databox-app-light-graph.git"
+    "url": "git+https://github.com/me-box/app-light-graph.git"
   },
   "keywords": [
     "docker",
@@ -30,13 +30,13 @@
   "author": "Yousef Amar <yousef@amar.io> (http://yousefamar.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/me-box/databox-app-light-graph/issues"
+    "url": "https://github.com/me-box/app-light-graph/issues"
   },
-  "homepage": "https://github.com/me-box/databox-app-light-graph#readme",
+  "homepage": "https://github.com/me-box/app-light-graph#readme",
   "dependencies": {
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
-    "node-databox": "^0.2.8",
+    "node-databox": "^0.5.1",
     "pug": "^2.0.0-beta11",
     "ws": "^2.2.1"
   }
