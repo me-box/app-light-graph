@@ -1,15 +1,18 @@
 const https = require('https');
 const url = require('url');
-
+const fs = require('fs')
 const express = require('express');
 const bodyParser = require('body-parser');
 //const WebSocket = require('ws');
 const databox = require('node-databox');
 
-const PORT = process.env.PORT || 8080;
+const HTTPS_SECRETS = JSON.parse( fs.readFileSync("/run/secrets/DATABOX_PEM") );
+var credentials = {
+  key:  HTTPS_SECRETS.clientprivate || '',
+  cert: HTTPS_SECRETS.clientcert || '',
+};		
 
-const HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
-const HTTPS_SERVER_PRIVATE_KEY = process.env.HTTPS_SERVER_PRIVATE_KEY || '';
+const PORT = process.env.PORT || 8080;
 
 const DATASOURCE_DS_light = JSON.parse(process.env.DATASOURCE_DS_light || '{}');
 // TODO: https://github.com/me-box/node-databox/issues/12
@@ -17,11 +20,6 @@ const mobileStore = ((url) => url.protocol + '//' + url.host)(url.parse(DATASOUR
 const lightID = DATASOURCE_DS_light['item-metadata'].filter((pair) => pair.rel === 'urn:X-databox:rels:hasDatasourceid')[0].val;
 
 const app = express();
-
-const credentials = {
-	key:  HTTPS_SERVER_PRIVATE_KEY,
-	cert: HTTPS_SERVER_CERT,
-};
 
 const server = https.createServer(credentials, app);
 //const wss = new WebSocket.Server({ server, path: '/ui/ws' });
@@ -54,7 +52,7 @@ app.get('/ui/data', function(req, res) {
 
 server.listen(PORT);
 
-databox.waitForStoreStatus(mobileStore, 'active')
+databox.waitForStoreStatus(mobileStore, 'active',10)
 	.then(() => databox.subscriptions.connect(mobileStore))
 	.then((subs) => {
 		subscriptions = subs;
