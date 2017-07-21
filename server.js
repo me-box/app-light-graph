@@ -6,11 +6,7 @@ const bodyParser = require('body-parser');
 //const WebSocket = require('ws');
 const databox = require('node-databox');
 
-const HTTPS_SECRETS = JSON.parse( fs.readFileSync("/run/secrets/DATABOX_PEM") );
-var credentials = {
-  key:  HTTPS_SECRETS.clientprivate || '',
-  cert: HTTPS_SECRETS.clientcert || '',
-};		
+var credentials = databox.getHttpsCredentials();
 
 const PORT = process.env.PORT || 8080;
 
