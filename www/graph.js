@@ -79,8 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	(function getDatum() {
 		$.get('ui/data', {}, (data) => {
 			entries.push({
-				timestamp: +data.data[0],
-				value: +data.data[1]
+				timestamp: +data[0],
+				value: +data[1]
 			});
 			updateGraph();
 			setTimeout(getDatum, 0);

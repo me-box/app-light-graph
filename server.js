@@ -1,65 +1,67 @@
 const https = require('https');
 const url = require('url');
-const fs = require('fs')
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
-//const WebSocket = require('ws');
 const databox = require('node-databox');
 
 var credentials = databox.getHttpsCredentials();
 
 const PORT = process.env.PORT || 8080;
 
-const DATASOURCE_DS_light = JSON.parse(process.env.DATASOURCE_DS_light || '{}');
-// TODO: https://github.com/me-box/node-databox/issues/12
-const mobileStore = ((url) => url.protocol + '//' + url.host)(url.parse(DATASOURCE_DS_light.href));
-const lightID = DATASOURCE_DS_light['item-metadata'].filter((pair) => pair.rel === 'urn:X-databox:rels:hasDatasourceid')[0].val;
+const DATASOURCE_DS_light = process.env.DATASOURCE_DS_light ;
 
-const app = express();
+databox.HypercatToSourceDataMetadata(DATASOURCE_DS_light)
+.then((data)=>{
 
-const server = https.createServer(credentials, app);
-//const wss = new WebSocket.Server({ server, path: '/ui/ws' });
-var subscriptions;
+	let DS_light_Metadata = data.DataSourceMetadata;
+	let store_url = data.DataSourceURL;
 
-// TODO: Check
-app.enable('trust proxy');
-app.disable('x-powered-by');
+	const app = express();
 
-//app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+	const server = https.createServer(credentials, app);
+	let subscription;
 
-app.use('/ui', express.static('www'));
-app.set('views', './views');
-app.set('view engine', 'pug');
+	// TODO: Check
+	app.enable('trust proxy');
+	app.disable('x-powered-by');
 
-app.get('/status', function(req, res){
-	res.send('active');
-});
+	//app.use(bodyParser.json());
+	app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/ui', function(req, res) {
-	res.render('graph');
-});
+	app.use('/ui', express.static('www'));
+	app.set('views', './views');
+	app.set('view engine', 'pug');
 
-app.get('/ui/data', function(req, res) {
-	subscriptions.once('data', (hostname, datasourceID, data) => {
-		res.json({ hostname, datasourceID, data });
+	app.get('/status', function(req, res){
+		res.send('active');
 	});
-});
 
-server.listen(PORT);
+	app.get('/ui', function(req, res) {
+		//console.log("UI called");
+		res.render('graph');
+	});
 
-databox.waitForStoreStatus(mobileStore, 'active',10)
-	.then(() => databox.subscriptions.connect(mobileStore))
-	.then((subs) => {
-		subscriptions = subs;
-		/*
-		subs.on('data', (hostname, datasourceID, data) => {
-			wss.clients.forEach((client) => {
-				if (client.readyState === WebSocket.OPEN)
-					client.send(data);
-			});
+	app.get('/ui/data', function(req, res) {
+		//console.log("/ui/data called");
+		subscriptions.once('data', (data) => {
+			console.log("/ui/data returned ", data);
+			res.json(data);
 		});
-		*/
+	});
+
+	let tsc = databox.NewTimeSeriesClient(mobileStore, false);
+
+	tsc.Observe(lightID)
+	.then((subs) => {
+		subscription = subs;
 	})
-	.then(() => databox.subscriptions.subscribe(mobileStore, lightID, 'ts'))
 	.catch((err) => console.error(err));
+
+	console.log("Starting UI server .... ");
+	server.listen(PORT);
+
+})
+.catch((err)=>{
+	console.log("Error:: ", err);
+});
