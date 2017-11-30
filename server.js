@@ -38,23 +38,24 @@ databox.HypercatToSourceDataMetadata(DATASOURCE_DS_light)
 	});
 
 	app.get('/ui', function(req, res) {
-		//console.log("UI called");
 		res.render('graph');
 	});
 
 	app.get('/ui/data', function(req, res) {
-		//console.log("/ui/data called");
-		subscriptions.once('data', (data) => {
-			console.log("/ui/data returned ", data);
+		subscription.once('data', (data) => {
 			res.json(data);
 		});
 	});
 
-	let tsc = databox.NewTimeSeriesClient(mobileStore, false);
+	let tsc = databox.NewTimeSeriesClient(store_url, false);
 
-	tsc.Observe(lightID)
+	tsc.Observe(DS_light_Metadata.DataSourceID)
 	.then((subs) => {
 		subscription = subs;
+		subscription.on('error',(err)=>{
+			console.warn(err);
+		});
+
 	})
 	.catch((err) => console.error(err));
 

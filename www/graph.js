@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		var filtered = entries
 			.slice(-maxCount)
 			.filter((entry) => maxTime < 1 || new Date() - new Date(entry.timestamp) <= maxTime);
-
+		console.log(filtered)
 		x.domain(d3.extent(filtered, (entry) => new Date(entry.timestamp)));
 		y.domain(d3.extent(filtered, (entry) => +entry.value));
 
@@ -78,10 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	(function getDatum() {
 		$.get('ui/data', {}, (data) => {
-			entries.push({
+			data = JSON.parse(data);
+			let datum = {
 				timestamp: +data[0],
 				value: +data[1]
-			});
+			}
+			entries.push(datum);
 			updateGraph();
 			setTimeout(getDatum, 0);
 		});
