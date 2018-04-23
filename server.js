@@ -47,7 +47,7 @@ databox.HypercatToSourceDataMetadata(DATASOURCE_DS_light)
 		});
 	});
 
-	let tsc = databox.NewTimeSeriesClient(store_url, false);
+	let tsc = databox.NewTimeSeriesBlobClient(store_url, false);
 
 	tsc.Observe(DS_light_Metadata.DataSourceID)
 	.then((subs) => {
