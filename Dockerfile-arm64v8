@@ -12,4 +12,7 @@ LABEL databox.type="app"
 
 EXPOSE 8080
 
+RUN addgroup -S databox && adduser -S -g databox databox
+USER databox
+
 CMD ["npm","start"]
