@@ -1,12 +1,15 @@
 FROM amd64/alpine:3.8
 
-FROM amd64/alpine:3.8
+WORKDIR /app
 
-ADD ./package.json /package.json
-RUN apk add --no-cache make gcc g++ python nodejs npm curl git krb5-dev zeromq-dev && \
-npm install zeromq --zmq-external --save && \
-npm install --production && \
-apk del make gcc g++ python curl git krb5-dev
+RUN addgroup -S databox && adduser -S -g databox databox && \
+apk --no-cache add build-base pkgconfig nodejs npm git libzmq zeromq-dev libsodium-dev python  && \
+npm install zeromq@4.6.0 --zmq-external --verbose && \
+apk del build-base pkgconfig libsodium-dev python zeromq-dev
+
+
+COPy ./package.json package.json
+RUN npm install --production
 
 COPY . .
 
@@ -14,7 +17,5 @@ LABEL databox.type="app"
 
 EXPOSE 8080
 
-RUN addgroup -S databox && adduser -S -g databox databox
 USER databox
-
 CMD ["npm","start"]
