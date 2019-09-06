@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	(function getDatum() {
 		$.get('ui/data', {}, (data) => {
-			data = JSON.parse(data);
+			console.log('data', data);//data = JSON.parse(data);
 			let datum = {
 				timestamp: +data[0],
 				value: +data[1]

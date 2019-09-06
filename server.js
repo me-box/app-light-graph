@@ -5,17 +5,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const databox = require('node-databox');
 
-var credentials = databox.getHttpsCredentials();
+var credentials = databox.GetHttpsCredentials();
 
 const PORT = process.env.PORT || 8080;
+const DATABOX_ARBITER_ENDPOINT = process.env.DATABOX_ARBITER_ENDPOINT;
 
 const DATASOURCE_DS_light = process.env.DATASOURCE_DS_light ;
 
-databox.HypercatToSourceDataMetadata(DATASOURCE_DS_light)
-.then((data)=>{
-
-	let DS_light_Metadata = data.DataSourceMetadata;
-	let store_url = data.DataSourceURL;
+	let DS_light_Metadata = databox.HypercatToDataSourceMetadata(DATASOURCE_DS_light)
+	let store_url = databox.GetStoreURLFromHypercat(DATASOURCE_DS_light)
 
 	const app = express();
 
@@ -43,14 +41,16 @@ databox.HypercatToSourceDataMetadata(DATASOURCE_DS_light)
 
 	app.get('/ui/data', function(req, res) {
 		subscription.once('data', (data) => {
-			res.json(data);
+			console.log("relay value", data)
+			res.json(data.data);
 		});
 	});
 
-	let tsc = databox.NewTimeSeriesBlobClient(store_url, false);
+	let sc = databox.NewStoreClient(store_url, DATABOX_ARBITER_ENDPOINT, false);
 
-	tsc.Observe(DS_light_Metadata.DataSourceID)
+	sc.TSBlob.Observe(DS_light_Metadata.DataSourceID)
 	.then((subs) => {
+		console.log("observing " + DS_light_Metadata.DataSourceID)
 		subscription = subs;
 		subscription.on('error',(err)=>{
 			console.warn(err);
@@ -61,8 +61,3 @@ databox.HypercatToSourceDataMetadata(DATASOURCE_DS_light)
 
 	console.log("Starting UI server .... ");
 	server.listen(PORT);
-
-})
-.catch((err)=>{
-	console.log("Error:: ", err);
-});
