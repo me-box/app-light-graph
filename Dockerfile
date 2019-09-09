@@ -19,3 +19,4 @@ EXPOSE 8080
 
 USER databox
 CMD ["npm","start"]
+#CMD ["sleep","3000000"]

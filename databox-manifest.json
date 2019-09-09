@@ -2,7 +2,7 @@
 	"manifest-version": 1,
 
 	"name": "app-light-graph",
-	"version": "0.3.0",
+	"version": "0.3.1",
 
 	"description": "A simple Databox app that plots mobile phone light sensor data",
 	"author": "Yousef Amar <yousef@amar.io> (http://yousefamar.com/)",
