@@ -2,7 +2,6 @@
 	"manifest-version": 1,
 
 	"name": "app-light-graph",
-	"docker-image": "cgreenhalgh/app-light-graph-amd64:latest",
 	"version": "0.3.1",
 
 	"description": "A simple Databox app that plots mobile phone light sensor data",
